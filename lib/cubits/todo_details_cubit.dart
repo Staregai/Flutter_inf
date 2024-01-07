@@ -11,4 +11,13 @@ class TodoDetailsCubit extends Cubit<ToDo> {
   void updateDescription(String description) {
     emit(state.copyWith(description: description));
   }
+
+  void updateDone() {
+    emit(state.copyWith(done: !state.done));
+    print(state.done);
+  }
+
+  bool isDone() {
+    return state.done;
+  }
 }

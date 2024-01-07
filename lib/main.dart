@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import './screens/home.dart';
+import 'cubits/todo_cubit.dart';
+import 'classes/todo.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-    MultiProvider(providers: [
-      ChangeNotifierProvider(
-        create: (_) => ThemeProvider(),
-      )
-    ], child: const MyApp()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(),
+        ),
+      ],
+      child: BlocProvider(
+        create: (context) => TodoCubit(ToDo.todoList()),
+        child: const MyApp(),
+      ),
+    ),
   );
 }
 

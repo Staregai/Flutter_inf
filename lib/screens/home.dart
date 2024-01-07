@@ -42,10 +42,21 @@ class HomeContent extends StatelessWidget {
                       children: [
                         Container(
                           margin: EdgeInsets.only(top: 50, bottom: 20),
-                          child: Text(
-                            "All todos",
-                            style: TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.w500),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "All todos",
+                                style: TextStyle(
+                                    fontSize: 30, fontWeight: FontWeight.w500),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  _showSortOptions(context);
+                                },
+                                icon: Icon(Icons.filter_list),
+                              ),
+                            ],
                           ),
                         ),
                         for (ToDo td in state.shownTodos)
@@ -173,6 +184,49 @@ class HomeContent extends StatelessWidget {
           border: InputBorder.none,
           hintText: "Search",
           hintStyle: TextStyle(color: tdGrey),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showSortOptions(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Sort Options'),
+          content: Column(
+            children: [
+              _buildSortOption(
+                  context, 'Alphabetically Increasing (Not Done First)'),
+              _buildSortOption(
+                  context, 'Alphabetically Decreasing (Not Done First)'),
+              _buildSortOption(
+                  context, 'Alphabetically Increasing (Done First)'),
+              _buildSortOption(
+                  context, 'Alphabetically Decreasing (Done First)'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSortOption(BuildContext context, String option) {
+    return InkWell(
+      onTap: () {
+        // Implement sorting logic based on the selected option
+        context.read<TodoCubit>().sortTodos(option);
+        Navigator.pop(context); // Close the dialog
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        child: Text(
+          option,
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontSize: 18,
+          ),
         ),
       ),
     );

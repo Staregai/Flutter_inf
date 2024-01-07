@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inf/classes/todo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inf/cubits/todo_details_cubit.dart';
+import 'package:inf/helpers/colors.dart';
 import 'package:inf/main.dart';
 
 class TodoDetails extends StatelessWidget {
@@ -50,6 +51,31 @@ class _TodoDetailsContent extends StatelessWidget {
             onChanged: (String title) {
               context.read<TodoDetailsCubit>().updateTitle(title);
             },
+          ),
+          Container(
+            margin: EdgeInsets.only(bottom: 5),
+            child: ListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              tileColor: Colors.white,
+              leading: IconButton(
+                icon: Icon(context.watch<TodoDetailsCubit>().isDone()
+                    ? Icons.check_box
+                    : Icons.check_box_outline_blank),
+                color: tdBlue,
+                onPressed: () {
+                  context.read<TodoDetailsCubit>().updateDone();
+                },
+              ),
+              title: Text(
+                "Done",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: tdBlack,
+                ),
+              ),
+            ),
           ),
           TextField(
             decoration: InputDecoration(labelText: "Description"),

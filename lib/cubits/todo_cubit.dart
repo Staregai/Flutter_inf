@@ -45,6 +45,53 @@ class TodoCubit extends Cubit<TodoState> {
       ));
     }
   }
+
+  void sortTodos(String option) {
+    List<ToDo> sortedTodos = List.from(state.shownTodos);
+
+    switch (option) {
+      case 'Alphabetically Increasing (Not Done First)':
+        sortedTodos.sort((a, b) {
+          if (a.done != b.done) {
+            return a.done ? 1 : -1;
+          }
+          return a.text!.compareTo(b.text!);
+        });
+        break;
+      case 'Alphabetically Decreasing (Not Done First)':
+        sortedTodos.sort((a, b) {
+          if (a.done != b.done) {
+            return a.done ? 1 : -1;
+          }
+          return b.text!.compareTo(a.text!);
+        });
+        break;
+      case 'Alphabetically Increasing (Done First)':
+        sortedTodos.sort((a, b) {
+          if (a.done != b.done) {
+            return a.done ? -1 : 1;
+          }
+          return a.text!.compareTo(b.text!);
+        });
+        break;
+      case 'Alphabetically Decreasing (Done First)':
+        sortedTodos.sort((a, b) {
+          if (a.done != b.done) {
+            return a.done ? -1 : 1;
+          }
+          return b.text!.compareTo(a.text!);
+        });
+        break;
+
+      default:
+        break;
+    }
+    for (var td in sortedTodos) {
+      print(td.text);
+    }
+
+    emit(state.copyWith(shownTodos: sortedTodos));
+  }
 }
 
 class TodoState {
