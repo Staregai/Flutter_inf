@@ -11,6 +11,20 @@ class ToDo {
     this.description = "",
   });
 
+  ToDo copyWith({
+    String? id,
+    String? text,
+    String? description,
+    bool? done,
+  }) {
+    return ToDo(
+      id: id ?? this.id,
+      text: text ?? this.text,
+      description: description ?? this.description,
+      done: done ?? this.done,
+    );
+  }
+
   static List<ToDo> todoList() {
     return {
       ToDo(

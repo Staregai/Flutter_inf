@@ -32,11 +32,13 @@ class MyApp extends StatelessWidget {
 
 class ThemeProvider extends ChangeNotifier {
   ThemeData? currentTheme;
+  bool isDarkMode = false;
 
   setLightMode() {
     currentTheme = ThemeData(
       brightness: Brightness.light,
     );
+    isDarkMode = false;
     notifyListeners();
   }
 
@@ -44,6 +46,11 @@ class ThemeProvider extends ChangeNotifier {
     currentTheme = ThemeData(
       brightness: Brightness.dark,
     );
+    isDarkMode = true;
     notifyListeners();
+  }
+
+  toggleTheme() {
+    isDarkMode ? setLightMode() : setDarkMode();
   }
 }
