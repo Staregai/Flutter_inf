@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:inf/classes/todo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:inf/classes/todo_item.dart';
+import 'package:inf/cubits/todo_cubit.dart';
 import 'package:inf/cubits/todo_details_cubit.dart';
 import 'package:inf/helpers/colors.dart';
 import 'package:inf/main.dart';
@@ -9,6 +11,7 @@ class TodoDetails extends StatelessWidget {
   final ToDo todo;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _newsubcontroller = TextEditingController();
 
   TodoDetails({required this.todo, Key? key}) : super(key: key);
 
@@ -22,6 +25,8 @@ class TodoDetails extends StatelessWidget {
       child: _TodoDetailsContent(
         titleController: _titleController,
         descriptionController: _descriptionController,
+        newsubController: _newsubcontroller,
+        todo: todo,
       ),
     );
   }
@@ -30,10 +35,14 @@ class TodoDetails extends StatelessWidget {
 class _TodoDetailsContent extends StatelessWidget {
   final TextEditingController titleController;
   final TextEditingController descriptionController;
+  final TextEditingController newsubController;
+  final ToDo todo;
 
   const _TodoDetailsContent({
     required this.titleController,
     required this.descriptionController,
+    required this.newsubController,
+    required this.todo,
   });
 
   @override
@@ -77,14 +86,79 @@ class _TodoDetailsContent extends StatelessWidget {
               ),
             ),
           ),
-          TextField(
-            decoration: InputDecoration(labelText: "Description"),
-            maxLines: 8,
-            controller: descriptionController,
-            onChanged: (String description) {
-              context.read<TodoDetailsCubit>().updateDescription(description);
-            },
+          Container(
+            margin: EdgeInsets.only(bottom: 10),
+            child: TextField(
+              decoration: InputDecoration(labelText: "Description"),
+              maxLines: 8,
+              controller: descriptionController,
+              onChanged: (String description) {
+                context.read<TodoDetailsCubit>().updateDescription(description);
+              },
+            ),
           ),
+          for (ToDo td in todo.subtasks)
+            todo_item(
+              todo: td,
+              onToDoChanged: (todo) {
+                context.read<TodoCubit>().handleToDoChange(todo);
+              },
+              onDeleteItem: (todo) {
+                context.read<TodoCubit>().handleDeleteToDo(todo);
+              },
+            ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(
+                    bottom: 20,
+                    right: 20,
+                    left: 20,
+                    top: 10,
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 0.0),
+                          blurRadius: 10.0,
+                          spreadRadius: 0.0),
+                    ],
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Add new subtask",
+                      border: InputBorder.none,
+                    ),
+                    controller: newsubController,
+                  ),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: 20, right: 20, top: 10),
+                child: ElevatedButton(
+                  child: Text(
+                    "+",
+                    style: TextStyle(fontSize: 40),
+                  ),
+                  onPressed: () {
+                    context
+                        .read<TodoDetailsCubit>()
+                        .addToDoSubItem(newsubController.text);
+                    newsubController.text = "";
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: tdBlue,
+                      minimumSize: Size(60, 60),
+                      elevation: 10),
+                ),
+              )
+            ]),
+          )
         ],
       ),
     );

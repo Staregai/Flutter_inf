@@ -5,6 +5,7 @@ import 'package:inf/helpers/colors.dart';
 import 'package:inf/main.dart';
 import 'package:inf/cubits/todo_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:inf/screens/todo_details.dart';
 
 class Home extends StatelessWidget {
   final _todoController = TextEditingController();
@@ -118,7 +119,13 @@ class HomeContent extends StatelessWidget {
                   style: TextStyle(fontSize: 40),
                 ),
                 onPressed: () {
-                  context.read<TodoCubit>().addToDoItem(_todoController.text);
+                  ToDo td = context
+                      .read<TodoCubit>()
+                      .addToDoItem(_todoController.text);
+                  final route = MaterialPageRoute(
+                    builder: (context) => TodoDetails(todo: td),
+                  );
+                  Navigator.push(context, route);
                   _todoController.clear();
                 },
                 style: ElevatedButton.styleFrom(

@@ -17,6 +17,13 @@ class TodoDetailsCubit extends Cubit<ToDo> {
     print(state.done);
   }
 
+  void addToDoSubItem(String td) {
+    ToDo sub =
+        ToDo(id: DateTime.now().microsecondsSinceEpoch.toString(), text: td);
+    state.subtasks.add(sub);
+    emit(state.copyWith(subtasks: state.subtasks));
+  }
+
   bool isDone() {
     return state.done;
   }

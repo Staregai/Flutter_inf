@@ -5,32 +5,44 @@ class TodoCubit extends Cubit<TodoState> {
   TodoCubit(List<ToDo> initialState) : super(TodoState(allTodos: initialState));
 
   void handleToDoChange(ToDo todo) {
-    emit(state.copyWith(
-      shownTodos: List.from(state.shownTodos)
-        ..[state.shownTodos.indexOf(todo)] = todo,
-    ));
+    List<ToDo> updatedTodos = List.from(state.allTodos);
+    int index = updatedTodos.indexWhere((item) => item.id == todo.id);
+
+    if (index != -1) {
+      updatedTodos[index] = todo.copyWith(done: !todo.done);
+      emit(state.copyWith(allTodos: updatedTodos));
+
+      if (state.shownTodos.contains(todo)) {
+        List<ToDo> updatedShownTodos = List.from(state.shownTodos);
+        int shownIndex =
+            updatedShownTodos.indexWhere((item) => item.id == todo.id);
+        if (shownIndex != -1) {
+          updatedShownTodos[shownIndex] = updatedTodos[index];
+          emit(state.copyWith(shownTodos: updatedShownTodos));
+        }
+      }
+    }
   }
 
   void handleDeleteToDo(String id) {
+    emit(state.copyWith(
+      allTodos: List.from(state.shownTodos)
+        ..removeWhere((item) => item.id == id),
+    ));
     emit(state.copyWith(
       shownTodos: List.from(state.shownTodos)
         ..removeWhere((item) => item.id == id),
     ));
   }
 
-  void addToDoItem(String toDo) {
+  ToDo addToDoItem(String toDo) {
+    ToDo td =
+        ToDo(id: DateTime.now().microsecondsSinceEpoch.toString(), text: toDo);
     emit(state.copyWith(
-      allTodos: List.from(state.allTodos)
-        ..add(ToDo(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          text: toDo,
-        )),
-      shownTodos: List.from(state.shownTodos)
-        ..add(ToDo(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          text: toDo,
-        )),
+      allTodos: List.from(state.allTodos)..add(td),
+      shownTodos: List.from(state.shownTodos)..add(td),
     ));
+    return td;
   }
 
   void runFilter(String key) {
@@ -89,8 +101,11 @@ class TodoCubit extends Cubit<TodoState> {
     for (var td in sortedTodos) {
       print(td.text);
     }
-
+    print("\nbreak\n");
     emit(state.copyWith(shownTodos: sortedTodos));
+    for (var td in state.shownTodos) {
+      print(td.text);
+    }
   }
 }
 
