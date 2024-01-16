@@ -1,3 +1,6 @@
+import 'package:inf/cubits/todo_cubit.dart';
+import 'package:isar/isar.dart';
+
 class ToDo {
   String? id;
   String? text;
@@ -17,6 +20,7 @@ class ToDo {
     String? description,
     bool? done,
     List<ToDo>? subtasks,
+    ToDo? subtask,
   }) {
     ToDo newtodo = ToDo(
       id: id ?? this.id,
@@ -24,7 +28,12 @@ class ToDo {
       description: description ?? this.description,
       done: done ?? this.done,
     );
-    if (subtasks!.isNotEmpty) {
+
+    newtodo.subtasks = [...this.subtasks];
+    if (subtask != null) {
+      newtodo.subtasks.add(subtask);
+    }
+    if (subtasks != null) {
       newtodo.subtasks = subtasks;
     }
     return newtodo;

@@ -12,10 +12,7 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TodoCubit(ToDo.todoList()),
-      child: HomeContent(todoController: _todoController),
-    );
+    return HomeContent(todoController: _todoController);
   }
 }
 
@@ -84,33 +81,6 @@ class HomeContent extends StatelessWidget {
         Align(
           alignment: Alignment.bottomCenter,
           child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            // Expanded(
-            //   child: Container(
-            //     margin: EdgeInsets.only(
-            //       bottom: 20,
-            //       right: 20,
-            //       left: 20,
-            //     ),
-            //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            //     decoration: BoxDecoration(
-            //       color: Colors.white,
-            //       boxShadow: [
-            //         BoxShadow(
-            //             color: Colors.grey,
-            //             offset: Offset(0.0, 0.0),
-            //             blurRadius: 10.0,
-            //             spreadRadius: 0.0),
-            //       ],
-            //     ),
-            //     child: TextField(
-            //       decoration: InputDecoration(
-            //         hintText: "Add new item",
-            //         border: InputBorder.none,
-            //       ),
-            //       controller: _todoController,
-            //     ),
-            //   ),
-            // ),
             Container(
               margin: EdgeInsets.only(bottom: 20, right: 20),
               child: ElevatedButton(
@@ -119,12 +89,8 @@ class HomeContent extends StatelessWidget {
                   style: TextStyle(fontSize: 40),
                 ),
                 onPressed: () {
-                  ToDo td = context
-                      .read<TodoCubit>()
-                      .addToDoItem(_todoController.text);
-                  final route = MaterialPageRoute(
-                    builder: (context) => TodoDetails(todo: td),
-                  );
+                  ToDo td = context.read<TodoCubit>().addToDoItem("");
+                  final route = TodoDeatilsRoute(td);
                   Navigator.push(context, route);
                   _todoController.clear();
                 },

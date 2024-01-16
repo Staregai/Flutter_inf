@@ -7,6 +7,16 @@ import 'package:inf/cubits/todo_details_cubit.dart';
 import 'package:inf/helpers/colors.dart';
 import 'package:inf/main.dart';
 
+class TodoDeatilsRoute extends MaterialPageRoute {
+  TodoDeatilsRoute(ToDo todo)
+      : super(
+          builder: (context) => BlocProvider(
+            create: (context) => TodoDetailsCubit(todo),
+            child: TodoDetails(todo: todo),
+          ),
+        );
+}
+
 class TodoDetails extends StatelessWidget {
   final ToDo todo;
   final _titleController = TextEditingController();
@@ -20,13 +30,12 @@ class TodoDetails extends StatelessWidget {
     _titleController.text = todo.text!;
     _descriptionController.text = todo.description!;
 
-    return BlocProvider(
-      create: (context) => TodoDetailsCubit(todo),
-      child: _TodoDetailsContent(
+    return BlocBuilder<TodoDetailsCubit, ToDo>(
+      builder: (context, state) => _TodoDetailsContent(
         titleController: _titleController,
         descriptionController: _descriptionController,
         newsubController: _newsubcontroller,
-        todo: todo,
+        todo: state,
       ),
     );
   }
@@ -101,10 +110,10 @@ class _TodoDetailsContent extends StatelessWidget {
             todo_item(
               todo: td,
               onToDoChanged: (todo) {
-                context.read<TodoCubit>().handleToDoChange(todo);
+                context.read<TodoDetailsCubit>().handleSubChange(todo);
               },
-              onDeleteItem: (todo) {
-                context.read<TodoCubit>().handleDeleteToDo(todo);
+              onDeleteItem: (id) {
+                context.read<TodoDetailsCubit>().handleDeleteSub(id);
               },
             ),
           Align(

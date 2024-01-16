@@ -28,8 +28,6 @@ class TodoCubit extends Cubit<TodoState> {
     emit(state.copyWith(
       allTodos: List.from(state.shownTodos)
         ..removeWhere((item) => item.id == id),
-    ));
-    emit(state.copyWith(
       shownTodos: List.from(state.shownTodos)
         ..removeWhere((item) => item.id == id),
     ));

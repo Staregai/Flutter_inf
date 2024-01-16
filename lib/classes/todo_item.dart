@@ -50,12 +50,12 @@ class _todo_itemState extends State<todo_item> {
         ),
         trailing: Container(
           padding: EdgeInsets.all(0),
-          margin: EdgeInsets.symmetric(vertical: 12),
           height: 35,
           width: 35,
           decoration: BoxDecoration(
               color: tdRed, borderRadius: BorderRadius.circular(5)),
           child: IconButton(
+            constraints: BoxConstraints.tight(Size(35, 35)),
             color: Colors.white,
             iconSize: 18,
             icon: Icon(Icons.delete),
@@ -69,9 +69,7 @@ class _todo_itemState extends State<todo_item> {
   }
 
   void navigateToDetails() {
-    final route = MaterialPageRoute(
-      builder: (context) => TodoDetails(todo: widget.todo),
-    );
+    final route = TodoDeatilsRoute(widget.todo);
     Navigator.push(context, route);
   }
 }

@@ -20,8 +20,24 @@ class TodoDetailsCubit extends Cubit<ToDo> {
   void addToDoSubItem(String td) {
     ToDo sub =
         ToDo(id: DateTime.now().microsecondsSinceEpoch.toString(), text: td);
-    state.subtasks.add(sub);
-    emit(state.copyWith(subtasks: state.subtasks));
+
+    emit(state.copyWith(subtask: sub));
+  }
+
+  void handleSubChange(ToDo todo) {
+    List<ToDo> updatedSubs = List.from(state.subtasks);
+    int index = updatedSubs.indexWhere((item) => item.id == todo.id);
+
+    if (index != -1) {
+      updatedSubs[index] = todo.copyWith(done: !todo.done);
+      emit(state.copyWith(subtasks: updatedSubs));
+    }
+  }
+
+  void handleDeleteSub(String id) {
+    emit(state.copyWith(
+      subtasks: List.from(state.subtasks)..removeWhere((item) => item.id == id),
+    ));
   }
 
   bool isDone() {
