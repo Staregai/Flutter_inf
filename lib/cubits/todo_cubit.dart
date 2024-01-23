@@ -20,14 +20,14 @@ class TodoCubit extends Cubit<TodoState> {
   }
 
   Future<void> handleDeleteToDo(int id) async {
-    _dataSource.delete(id);
+    await _dataSource.delete(id);
     await init(null);
     print("object");
   }
 
   Future<ToDo> addToDoItem(String toDo) async {
     ToDo td = ToDo(text: toDo);
-    _dataSource.insert(td);
+    await _dataSource.insert(td);
 
     await init(null);
     print("object");
