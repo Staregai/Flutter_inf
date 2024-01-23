@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inf/classes/todo_item.dart';
 import 'package:inf/classes/todo.dart';
+import 'package:inf/data_sources/todo_DataSource.dart';
 import 'package:inf/helpers/colors.dart';
 import 'package:inf/main.dart';
 import 'package:inf/cubits/todo_cubit.dart';
@@ -9,19 +10,24 @@ import 'package:inf/screens/todo_details.dart';
 
 class Home extends StatelessWidget {
   final _todoController = TextEditingController();
-
+  final IsarTodoDataSource dataSource;
+  Home({required this.dataSource});
   @override
   Widget build(BuildContext context) {
-    return HomeContent(todoController: _todoController);
+    return HomeContent(
+      todoController: _todoController,
+      dataSource: dataSource,
+    );
   }
 }
 
 class HomeContent extends StatelessWidget {
-  final TextEditingController _todoController;
+  final TextEditingController todoController;
+  final IsarTodoDataSource dataSource;
 
-  const HomeContent({Key? key, required TextEditingController todoController})
-      : _todoController = todoController,
-        super(key: key);
+  const HomeContent(
+      {Key? key, required this.todoController, required this.dataSource})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +66,7 @@ class HomeContent extends StatelessWidget {
                         for (ToDo td in state.shownTodos)
                           todo_item(
                             todo: td,
+                            dataSource: dataSource,
                             onToDoChanged: (todo) {
                               context.read<TodoCubit>().handleToDoChange(todo);
                             },
@@ -88,11 +95,11 @@ class HomeContent extends StatelessWidget {
                   "+",
                   style: TextStyle(fontSize: 40),
                 ),
-                onPressed: () {
-                  ToDo td = context.read<TodoCubit>().addToDoItem("");
-                  final route = TodoDeatilsRoute(td);
+                onPressed: () async {
+                  ToDo td = await context.read<TodoCubit>().addToDoItem("abc");
+                  final route = TodoDeatilsRoute(td, dataSource);
                   Navigator.push(context, route);
-                  _todoController.clear();
+                  todoController.clear();
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: tdBlue,
@@ -187,9 +194,9 @@ class HomeContent extends StatelessWidget {
 
   Widget _buildSortOption(BuildContext context, String option) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
         // Implement sorting logic based on the selected option
-        context.read<TodoCubit>().sortTodos(option);
+        await context.read<TodoCubit>().sortTodos(option);
         Navigator.pop(context); // Close the dialog
       },
       child: Padding(

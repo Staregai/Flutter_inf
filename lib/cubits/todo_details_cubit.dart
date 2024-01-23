@@ -1,46 +1,26 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inf/classes/todo.dart';
+import 'package:inf/data_sources/todo_DataSource.dart';
 
 class TodoDetailsCubit extends Cubit<ToDo> {
-  TodoDetailsCubit(ToDo initialState) : super(initialState);
+  TodoDetailsCubit(ToDo initialState, {required this.dataSource})
+      : super(initialState);
 
-  void updateTitle(String title) {
-    emit(state.copyWith(text: title));
-  }
-
-  void updateDescription(String description) {
-    emit(state.copyWith(description: description));
-  }
-
-  void updateDone() {
-    emit(state.copyWith(done: !state.done));
-    print(state.done);
-  }
-
-  void addToDoSubItem(String td) {
-    ToDo sub =
-        ToDo(id: DateTime.now().microsecondsSinceEpoch.toString(), text: td);
-
-    emit(state.copyWith(subtask: sub));
-  }
-
-  void handleSubChange(ToDo todo) {
-    List<ToDo> updatedSubs = List.from(state.subtasks);
-    int index = updatedSubs.indexWhere((item) => item.id == todo.id);
-
-    if (index != -1) {
-      updatedSubs[index] = todo.copyWith(done: !todo.done);
-      emit(state.copyWith(subtasks: updatedSubs));
-    }
-  }
-
-  void handleDeleteSub(String id) {
-    emit(state.copyWith(
-      subtasks: List.from(state.subtasks)..removeWhere((item) => item.id == id),
-    ));
-  }
-
+  final IsarTodoDataSource dataSource;
   bool isDone() {
     return state.done;
+  }
+
+  Future<void> TitleChange(String txt) async {
+    await dataSource.UpdateTitle(state.id, txt);
+  }
+
+  Future<void> DescChange(String txt) async {
+    await dataSource.UpdateDesc(state.id, txt);
+    print("opis");
+  }
+
+  Future<void> DoneChange() async {
+    await dataSource.UpdateDone(state.id);
   }
 }

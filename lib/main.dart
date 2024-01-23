@@ -5,8 +5,12 @@ import 'cubits/todo_cubit.dart';
 import 'classes/todo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:inf/data_sources/todo_DataSource.dart';
 
 void main() {
+  IsarTodoDataSource dataSource = IsarTodoDataSource();
+  TodoCubit todoCubit = TodoCubit(ds: dataSource);
+  todoCubit.init(null);
   runApp(
     MultiProvider(
       providers: [
@@ -15,16 +19,17 @@ void main() {
         ),
       ],
       child: BlocProvider(
-        create: (context) => TodoCubit(ToDo.todoList()),
-        child: const MyApp(),
+        create: (context) => todoCubit,
+        child: MyApp(dataSource: dataSource),
       ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key, required this.dataSource});
 
+  final IsarTodoDataSource dataSource;
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'I Nearly Forgot',
-      home: Home(),
+      home: Home(
+        dataSource: dataSource,
+      ),
       theme: Provider.of<ThemeProvider>(context).currentTheme,
     );
   }

@@ -1,62 +1,48 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inf/classes/todo.dart';
+import 'package:inf/data_sources/todo_DataSource.dart';
 
 class TodoCubit extends Cubit<TodoState> {
-  TodoCubit(List<ToDo> initialState) : super(TodoState(allTodos: initialState));
+  TodoCubit({required IsarTodoDataSource ds})
+      : _dataSource = ds,
+        super(TodoState());
 
-  void handleToDoChange(ToDo todo) {
-    List<ToDo> updatedTodos = List.from(state.allTodos);
-    int index = updatedTodos.indexWhere((item) => item.id == todo.id);
+  final IsarTodoDataSource _dataSource;
 
-    if (index != -1) {
-      updatedTodos[index] = todo.copyWith(done: !todo.done);
-      emit(state.copyWith(allTodos: updatedTodos));
-
-      if (state.shownTodos.contains(todo)) {
-        List<ToDo> updatedShownTodos = List.from(state.shownTodos);
-        int shownIndex =
-            updatedShownTodos.indexWhere((item) => item.id == todo.id);
-        if (shownIndex != -1) {
-          updatedShownTodos[shownIndex] = updatedTodos[index];
-          emit(state.copyWith(shownTodos: updatedShownTodos));
-        }
-      }
-    }
+  Future<void> init(List<ToDo>? shown) async {
+    await _dataSource.init();
+    List<ToDo> ls = await _dataSource.getAll();
+    emit(TodoState(allTodos: ls, shownTodos: shown ?? ls));
   }
 
-  void handleDeleteToDo(String id) {
-    emit(state.copyWith(
-      allTodos: List.from(state.shownTodos)
-        ..removeWhere((item) => item.id == id),
-      shownTodos: List.from(state.shownTodos)
-        ..removeWhere((item) => item.id == id),
-    ));
+  Future<void> handleToDoChange(ToDo todo) async {
+    await _dataSource.UpdateDone(todo.id);
   }
 
-  ToDo addToDoItem(String toDo) {
-    ToDo td =
-        ToDo(id: DateTime.now().microsecondsSinceEpoch.toString(), text: toDo);
-    emit(state.copyWith(
-      allTodos: List.from(state.allTodos)..add(td),
-      shownTodos: List.from(state.shownTodos)..add(td),
-    ));
+  Future<void> handleDeleteToDo(int id) async {
+    _dataSource.delete(id);
+    await init(null);
+    print("object");
+  }
+
+  Future<ToDo> addToDoItem(String toDo) async {
+    ToDo td = ToDo(text: toDo);
+    _dataSource.insert(td);
+
+    await init(null);
+    print("object");
     return td;
   }
 
-  void runFilter(String key) {
+  Future<void> runFilter(String key) async {
     if (key.isEmpty) {
-      emit(state.copyWith(shownTodos: List.from(state.allTodos)));
+      await init(null);
     } else {
-      emit(state.copyWith(
-        shownTodos: List<ToDo>.from(state.allTodos)
-            .where(
-                (item) => item.text!.toLowerCase().contains(key.toLowerCase()))
-            .toList(),
-      ));
+      await init(await _dataSource.getFiltered(key));
     }
   }
 
-  void sortTodos(String option) {
+  Future<void> sortTodos(String option) async {
     List<ToDo> sortedTodos = List.from(state.shownTodos);
 
     switch (option) {
@@ -96,23 +82,18 @@ class TodoCubit extends Cubit<TodoState> {
       default:
         break;
     }
-    for (var td in sortedTodos) {
-      print(td.text);
-    }
-    print("\nbreak\n");
-    emit(state.copyWith(shownTodos: sortedTodos));
-    for (var td in state.shownTodos) {
-      print(td.text);
-    }
+
+    await init(sortedTodos);
   }
 }
 
 class TodoState {
-  final List<ToDo> allTodos;
-  final List<ToDo> shownTodos;
+  List<ToDo> allTodos;
+  List<ToDo> shownTodos;
 
-  TodoState({required this.allTodos, List<ToDo>? shownTodos})
-      : shownTodos = shownTodos ?? allTodos;
+  TodoState({List<ToDo>? allTodos, List<ToDo>? shownTodos})
+      : allTodos = allTodos ?? List.empty(growable: true),
+        shownTodos = shownTodos ?? List.empty(growable: true);
 
   TodoState copyWith({List<ToDo>? allTodos, List<ToDo>? shownTodos}) {
     return TodoState(

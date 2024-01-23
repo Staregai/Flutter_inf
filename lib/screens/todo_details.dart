@@ -4,15 +4,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inf/classes/todo_item.dart';
 import 'package:inf/cubits/todo_cubit.dart';
 import 'package:inf/cubits/todo_details_cubit.dart';
+import 'package:inf/data_sources/todo_DataSource.dart';
 import 'package:inf/helpers/colors.dart';
 import 'package:inf/main.dart';
 
 class TodoDeatilsRoute extends MaterialPageRoute {
-  TodoDeatilsRoute(ToDo todo)
+  TodoDeatilsRoute(ToDo todo, IsarTodoDataSource _dataSource)
       : super(
           builder: (context) => BlocProvider(
-            create: (context) => TodoDetailsCubit(todo),
-            child: TodoDetails(todo: todo),
+            create: (context) =>
+                TodoDetailsCubit(todo, dataSource: _dataSource),
+            child: TodoDetails(
+              todo: todo,
+              dataSource: _dataSource,
+            ),
           ),
         );
 }
@@ -22,8 +27,10 @@ class TodoDetails extends StatelessWidget {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _newsubcontroller = TextEditingController();
+  final IsarTodoDataSource dataSource;
 
-  TodoDetails({required this.todo, Key? key}) : super(key: key);
+  TodoDetails({required this.todo, Key? key, required this.dataSource})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +43,7 @@ class TodoDetails extends StatelessWidget {
         descriptionController: _descriptionController,
         newsubController: _newsubcontroller,
         todo: state,
+        dataSource: dataSource,
       ),
     );
   }
@@ -46,13 +54,14 @@ class _TodoDetailsContent extends StatelessWidget {
   final TextEditingController descriptionController;
   final TextEditingController newsubController;
   final ToDo todo;
+  final IsarTodoDataSource dataSource;
 
-  const _TodoDetailsContent({
-    required this.titleController,
-    required this.descriptionController,
-    required this.newsubController,
-    required this.todo,
-  });
+  const _TodoDetailsContent(
+      {required this.titleController,
+      required this.descriptionController,
+      required this.newsubController,
+      required this.todo,
+      required this.dataSource});
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +75,8 @@ class _TodoDetailsContent extends StatelessWidget {
               labelText: "Title",
             ),
             controller: titleController,
-            onChanged: (String title) {
-              context.read<TodoDetailsCubit>().updateTitle(title);
+            onChanged: (String title) async {
+              await context.read<TodoDetailsCubit>().TitleChange(title);
             },
           ),
           Container(
@@ -82,8 +91,8 @@ class _TodoDetailsContent extends StatelessWidget {
                     ? Icons.check_box
                     : Icons.check_box_outline_blank),
                 color: tdBlue,
-                onPressed: () {
-                  context.read<TodoDetailsCubit>().updateDone();
+                onPressed: () async {
+                  await context.read<TodoDetailsCubit>().DoneChange();
                 },
               ),
               title: Text(
@@ -101,19 +110,20 @@ class _TodoDetailsContent extends StatelessWidget {
               decoration: InputDecoration(labelText: "Description"),
               maxLines: 8,
               controller: descriptionController,
-              onChanged: (String description) {
-                context.read<TodoDetailsCubit>().updateDescription(description);
+              onChanged: (String description) async {
+                await context.read<TodoDetailsCubit>().DescChange(description);
               },
             ),
           ),
           for (ToDo td in todo.subtasks)
             todo_item(
               todo: td,
+              dataSource: dataSource,
               onToDoChanged: (todo) {
-                context.read<TodoDetailsCubit>().handleSubChange(todo);
+                //context.read<TodoDetailsCubit>().;
               },
               onDeleteItem: (id) {
-                context.read<TodoDetailsCubit>().handleDeleteSub(id);
+                //context.read<TodoDetailsCubit>().handleDeleteSub(id);
               },
             ),
           Align(
@@ -155,9 +165,9 @@ class _TodoDetailsContent extends StatelessWidget {
                     style: TextStyle(fontSize: 40),
                   ),
                   onPressed: () {
-                    context
-                        .read<TodoDetailsCubit>()
-                        .addToDoSubItem(newsubController.text);
+                    // context
+                    //     .read<TodoDetailsCubit>()
+                    //     .addToDoSubItem(newsubController.text);
                     newsubController.text = "";
                   },
                   style: ElevatedButton.styleFrom(
