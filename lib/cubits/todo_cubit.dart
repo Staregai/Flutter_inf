@@ -15,30 +15,34 @@ class TodoCubit extends Cubit<TodoState> {
     emit(TodoState(allTodos: ls, shownTodos: shown ?? ls));
   }
 
+  Future<void> refresh(List<ToDo>? shown) async {
+    List<ToDo> ls = await _dataSource.getAll();
+    emit(TodoState(allTodos: ls, shownTodos: shown ?? ls));
+  }
+
   Future<void> handleToDoChange(ToDo todo) async {
     await _dataSource.UpdateDone(todo.id);
   }
 
   Future<void> handleDeleteToDo(int id) async {
     await _dataSource.delete(id);
-    await init(null);
-    print("object");
+    await refresh(null);
   }
 
   Future<ToDo> addToDoItem(String toDo) async {
     ToDo td = ToDo(text: toDo);
     await _dataSource.insert(td);
 
-    await init(null);
-    print("object");
+    await refresh(null);
+
     return td;
   }
 
   Future<void> runFilter(String key) async {
     if (key.isEmpty) {
-      await init(null);
+      await refresh(null);
     } else {
-      await init(await _dataSource.getFiltered(key));
+      await refresh(await _dataSource.getFiltered(key));
     }
   }
 
@@ -83,7 +87,7 @@ class TodoCubit extends Cubit<TodoState> {
         break;
     }
 
-    await init(sortedTodos);
+    await refresh(sortedTodos);
   }
 }
 

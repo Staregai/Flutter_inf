@@ -17,10 +17,17 @@ class TodoDetailsCubit extends Cubit<ToDo> {
 
   Future<void> DescChange(String txt) async {
     await dataSource.UpdateDesc(state.id, txt);
-    print("opis");
   }
 
   Future<void> DoneChange() async {
     await dataSource.UpdateDone(state.id);
+  }
+
+  Future<void> addToDoSubItem(String text) async {
+    await dataSource.AddSub(state.id, text);
+  }
+
+  Future<void> handleDeleteSub(int id, ToDo del) async {
+    await dataSource.DelSub(id, del);
   }
 }

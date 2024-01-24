@@ -77,6 +77,7 @@ class _TodoDetailsContent extends StatelessWidget {
             controller: titleController,
             onChanged: (String title) async {
               await context.read<TodoDetailsCubit>().TitleChange(title);
+              print("2137");
             },
           ),
           Container(
@@ -120,10 +121,10 @@ class _TodoDetailsContent extends StatelessWidget {
               todo: td,
               dataSource: dataSource,
               onToDoChanged: (todo) {
-                //context.read<TodoDetailsCubit>().;
+                context.read<TodoDetailsCubit>();
               },
-              onDeleteItem: (id) {
-                //context.read<TodoDetailsCubit>().handleDeleteSub(id);
+              onDeleteItem: (id, todo) {
+                context.read<TodoDetailsCubit>().handleDeleteSub(id, todo);
               },
             ),
           Align(
@@ -164,10 +165,10 @@ class _TodoDetailsContent extends StatelessWidget {
                     "+",
                     style: TextStyle(fontSize: 40),
                   ),
-                  onPressed: () {
-                    // context
-                    //     .read<TodoDetailsCubit>()
-                    //     .addToDoSubItem(newsubController.text);
+                  onPressed: () async {
+                    await context
+                        .read<TodoDetailsCubit>()
+                        .addToDoSubItem(newsubController.text);
                     newsubController.text = "";
                   },
                   style: ElevatedButton.styleFrom(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:inf/cubits/todo_cubit.dart';
 import 'package:inf/data_sources/todo_DataSource.dart';
 import 'package:inf/helpers/colors.dart';
 import 'package:inf/classes/todo.dart';
@@ -30,8 +32,9 @@ class _todo_itemState extends State<todo_item> {
     return Container(
       margin: EdgeInsets.only(bottom: 5),
       child: ListTile(
-        onTap: () {
+        onTap: () async {
           navigateToDetails(dataSource);
+          await context.read<TodoCubit>().refresh(null);
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
