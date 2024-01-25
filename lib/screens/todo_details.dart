@@ -157,6 +157,7 @@ class _TodoDetailsContent extends StatelessWidget {
                       ],
                     ),
                     child: TextField(
+                      style: TextStyle(color: tdBlack),
                       decoration: InputDecoration(
                         hintText: "Add new subtask",
                         border: InputBorder.none,

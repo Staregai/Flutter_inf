@@ -7,10 +7,31 @@ import 'package:inf/main.dart';
 import 'package:inf/cubits/todo_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inf/screens/todo_details.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:inf/helpers/auth.dart';
 
 class Home extends StatelessWidget {
   final IsarTodoDataSource dataSource;
   Home({required this.dataSource});
+
+  final User? user = Auth().currentUser;
+
+  Future<void> signOut() async {
+    await Auth().signOut();
+  }
+
+  Widget _title() {
+    return const Text("firebase");
+  }
+
+  Widget _userUid() {
+    return Text(user?.email ?? 'User email');
+  }
+
+  Widget _signOutButton() {
+    return ElevatedButton(onPressed: signOut, child: const Text("Sign Out"));
+  }
+
   @override
   Widget build(BuildContext context) {
     return HomeContent(
@@ -120,8 +141,11 @@ class HomeContent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: Icon(Icons.menu, size: 30),
-            onPressed: () {},
+            icon: Icon(Icons.logout, size: 30),
+            onPressed: () async {
+              await showDialog(
+                  context: context, builder: (_) => const LogoutDialog());
+            },
           ),
           IconButton(
             icon: Icon(
@@ -209,6 +233,37 @@ class HomeContent extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class LogoutDialog extends StatefulWidget {
+  const LogoutDialog({
+    super.key,
+  });
+
+  @override
+  State<LogoutDialog> createState() => _LogoutDialogState();
+}
+
+class _LogoutDialogState extends State<LogoutDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Text("Are you sure you want to Log out?"),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+            await Auth().signOut();
+          },
+          child: const Text('Yes'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('No'),
+        ),
+      ],
     );
   }
 }

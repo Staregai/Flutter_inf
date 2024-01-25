@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:inf/firebase_options.dart';
 import './screens/home.dart';
 import 'cubits/todo_cubit.dart';
 import 'classes/todo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:inf/data_sources/todo_DataSource.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:inf/helpers/widget_tree.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  print("fdgfxxfhgd");
   IsarTodoDataSource dataSource = IsarTodoDataSource();
+  await dataSource.init();
   TodoCubit todoCubit = TodoCubit(ds: dataSource);
-  todoCubit.init(null);
+  await todoCubit.init(null);
   runApp(
     MultiProvider(
       providers: [
@@ -38,7 +45,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'I Nearly Forgot',
-      home: Home(
+      home: WidgetTree(
         dataSource: dataSource,
       ),
       theme: Provider.of<ThemeProvider>(context).currentTheme,

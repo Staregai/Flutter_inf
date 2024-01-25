@@ -34,7 +34,7 @@ class _todo_itemState extends State<todo_item> {
       child: ListTile(
         onTap: () async {
           await navigateToDetails(dataSource);
-          await context.read<TodoCubit>().refresh(null);
+          await refresh(context);
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -79,5 +79,9 @@ class _todo_itemState extends State<todo_item> {
   Future<void> navigateToDetails(IsarTodoDataSource dataSource) async {
     final route = TodoDeatilsRoute(widget.todo, dataSource);
     Navigator.push(context, route);
+  }
+
+  Future<void> refresh(BuildContext context) async {
+    await context.read<TodoCubit>().refresh(null);
   }
 }
