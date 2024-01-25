@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inf/classes/subtask_item.dart';
 import 'package:inf/classes/todo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inf/classes/todo_item.dart';
@@ -13,7 +14,7 @@ class TodoDeatilsRoute extends MaterialPageRoute {
       : super(
           builder: (context) => BlocProvider(
             create: (context) =>
-                TodoDetailsCubit(todo, dataSource: _dataSource),
+                TodoDetailsCubit(td: todo, dataSource: _dataSource),
             child: TodoDetails(
               todo: todo,
               dataSource: _dataSource,
@@ -37,12 +38,12 @@ class TodoDetails extends StatelessWidget {
     _titleController.text = todo.text!;
     _descriptionController.text = todo.description!;
 
-    return BlocBuilder<TodoDetailsCubit, ToDo>(
+    return BlocBuilder<TodoDetailsCubit, DetailsState>(
       builder: (context, state) => _TodoDetailsContent(
         titleController: _titleController,
         descriptionController: _descriptionController,
         newsubController: _newsubcontroller,
-        todo: state,
+        todo: state.toDo,
         dataSource: dataSource,
       ),
     );
@@ -67,120 +68,127 @@ class _TodoDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 5),
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              labelText: "Title",
+      body: BlocBuilder<TodoDetailsCubit, DetailsState>(
+          builder: (context, state) {
+        return ListView(
+          padding: EdgeInsets.symmetric(horizontal: 5),
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                labelText: "Title",
+              ),
+              controller: titleController,
+              onChanged: (String title) async {
+                await context.read<TodoDetailsCubit>().TitleChange(title);
+              },
             ),
-            controller: titleController,
-            onChanged: (String title) async {
-              await context.read<TodoDetailsCubit>().TitleChange(title);
-              print("2137");
-            },
-          ),
-          Container(
-            margin: EdgeInsets.only(bottom: 5),
-            child: ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              tileColor: Colors.white,
-              leading: IconButton(
-                icon: Icon(context.watch<TodoDetailsCubit>().isDone()
-                    ? Icons.check_box
-                    : Icons.check_box_outline_blank),
-                color: tdBlue,
-                onPressed: () async {
-                  await context.read<TodoDetailsCubit>().DoneChange();
+            Container(
+              margin: EdgeInsets.only(bottom: 5),
+              child: ListTile(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                tileColor: Colors.white,
+                leading: IconButton(
+                  icon: Icon(context.watch<TodoDetailsCubit>().isDone()
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank),
+                  color: tdBlue,
+                  onPressed: () async {
+                    await context.read<TodoDetailsCubit>().DoneChange();
+                  },
+                ),
+                title: Text(
+                  "Done",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: tdBlack,
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(bottom: 10),
+              child: TextField(
+                decoration: InputDecoration(labelText: "Description"),
+                maxLines: 8,
+                controller: descriptionController,
+                onChanged: (String description) async {
+                  await context
+                      .read<TodoDetailsCubit>()
+                      .DescChange(description);
                 },
               ),
-              title: Text(
-                "Done",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: tdBlack,
-                ),
+            ),
+            for (Subtask td in state.subs)
+              subtask_item(
+                sub: td,
+                dataSource: dataSource,
+                onToDoChanged: (id) {
+                  context.read<TodoDetailsCubit>().SubDoneChange(id);
+                },
+                onDeleteItem: (sub) {
+                  context
+                      .read<TodoDetailsCubit>()
+                      .handleDeleteSub(state.toDo.id, sub);
+                },
               ),
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            child: TextField(
-              decoration: InputDecoration(labelText: "Description"),
-              maxLines: 8,
-              controller: descriptionController,
-              onChanged: (String description) async {
-                await context.read<TodoDetailsCubit>().DescChange(description);
-              },
-            ),
-          ),
-          for (ToDo td in todo.subtasks)
-            todo_item(
-              todo: td,
-              dataSource: dataSource,
-              onToDoChanged: (todo) {
-                context.read<TodoDetailsCubit>();
-              },
-              onDeleteItem: (id, todo) {
-                context.read<TodoDetailsCubit>().handleDeleteSub(id, todo);
-              },
-            ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(
-                    bottom: 20,
-                    right: 20,
-                    left: 20,
-                    top: 10,
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.grey,
-                          offset: Offset(0.0, 0.0),
-                          blurRadius: 10.0,
-                          spreadRadius: 0.0),
-                    ],
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Add new subtask",
-                      border: InputBorder.none,
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(
+                      bottom: 20,
+                      right: 20,
+                      left: 20,
+                      top: 10,
                     ),
-                    controller: newsubController,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey,
+                            offset: Offset(0.0, 0.0),
+                            blurRadius: 10.0,
+                            spreadRadius: 0.0),
+                      ],
+                    ),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: "Add new subtask",
+                        border: InputBorder.none,
+                      ),
+                      controller: newsubController,
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 20, right: 20, top: 10),
-                child: ElevatedButton(
-                  child: Text(
-                    "+",
-                    style: TextStyle(fontSize: 40),
+                Container(
+                  margin: EdgeInsets.only(bottom: 20, right: 20, top: 10),
+                  child: ElevatedButton(
+                    child: Text(
+                      "+",
+                      style: TextStyle(fontSize: 40),
+                    ),
+                    onPressed: () async {
+                      await context
+                          .read<TodoDetailsCubit>()
+                          .addToDoSubItem(newsubController.text);
+                      newsubController.text = "";
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: tdBlue,
+                        minimumSize: Size(60, 60),
+                        elevation: 10),
                   ),
-                  onPressed: () async {
-                    await context
-                        .read<TodoDetailsCubit>()
-                        .addToDoSubItem(newsubController.text);
-                    newsubController.text = "";
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: tdBlue,
-                      minimumSize: Size(60, 60),
-                      elevation: 10),
-                ),
-              )
-            ]),
-          )
-        ],
-      ),
+                )
+              ]),
+            )
+          ],
+        );
+      }),
     );
   }
 

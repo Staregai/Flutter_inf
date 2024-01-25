@@ -11,7 +11,7 @@ class IsarTodoDataSource {
       _initialized = true;
       final dir = await getApplicationDocumentsDirectory();
       _isar = await Isar.open(
-        [ToDoSchema],
+        [ToDoSchema, SubtaskSchema],
         directory: dir.path,
       );
     }
@@ -20,16 +20,22 @@ class IsarTodoDataSource {
   Future<void> delete(int id) async => await _isar.writeTxn(
         () async => await _isar.toDos.filter().idEqualTo(id).deleteAll(),
       );
-
+  Future<void> deletesub(int id) async => await _isar.writeTxn(
+        () async => await _isar.subtasks.filter().idEqualTo(id).deleteAll(),
+      );
   Future<ToDo?> get(int id) async =>
       await _isar.toDos.filter().idEqualTo(id).findFirst();
+  Future<Subtask?> getsub(int id) async =>
+      await _isar.subtasks.filter().idEqualTo(id).findFirst();
 
   Future<List<ToDo>> getAll() async => await _isar.toDos.where().findAll();
+  Future<List<Subtask>> getAllsub() async =>
+      await _isar.subtasks.where().findAll();
 
   Future<List<ToDo>> getFiltered(String frag) async =>
       await _isar.toDos.filter().textContains(frag).findAll();
 
-  Future<void> insert(ToDo todo) async => await _isar.writeTxn(
+  Future<int> insert(ToDo todo) async => await _isar.writeTxn(
         () async => await _isar.toDos.put(
           ToDo(
             text: todo.text,
@@ -59,19 +65,28 @@ class IsarTodoDataSource {
         _isar.toDos.put(td!);
       });
 
+  Future<void> SubUpdateDone(int id) async => await _isar.writeTxn(() async {
+        Subtask? sub = await getsub(id);
+        sub?.done = !sub.done;
+        _isar.subtasks.put(sub!);
+      });
+
   Future<void> AddSub(int id, String txt) async {
     ToDo? td = await get(id);
-    ToDo sub = ToDo(text: txt);
+    Subtask sub = Subtask(text: txt);
+
+    await _isar.writeTxn(() => _isar.subtasks.put(sub));
     td?.subtasks.add(sub);
-    await _isar.writeTxn(() async {
+    _isar.writeTxn(() async {
       await td?.subtasks.save();
       await _isar.toDos.put(td!);
     });
   }
 
-  Future<void> DelSub(int id, ToDo del) async {
+  Future<void> DelSub(int id, Subtask del) async {
     ToDo? td = await get(id);
     td?.subtasks.remove(del);
+    await deletesub(del.id);
     await _isar.writeTxn(() async {
       await td?.subtasks.save();
       await _isar.toDos.put(td!);

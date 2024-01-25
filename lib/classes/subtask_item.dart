@@ -6,54 +6,53 @@ import 'package:inf/helpers/colors.dart';
 import 'package:inf/classes/todo.dart';
 import 'package:inf/screens/todo_details.dart';
 
-class todo_item extends StatefulWidget {
-  final ToDo todo;
+class subtask_item extends StatefulWidget {
+  final Subtask sub;
   final onToDoChanged;
   final onDeleteItem;
   final IsarTodoDataSource dataSource;
 
-  const todo_item({
+  const subtask_item({
     Key? key,
-    required this.todo,
+    required this.sub,
     required this.onToDoChanged,
     required this.onDeleteItem,
     required this.dataSource,
   }) : super(key: key);
 
   @override
-  State<todo_item> createState() => _todo_itemState(dataSource: dataSource);
+  State<subtask_item> createState() => _sub_itemState(dataSource: dataSource);
 }
 
-class _todo_itemState extends State<todo_item> {
+class _sub_itemState extends State<subtask_item> {
   IsarTodoDataSource dataSource;
-  _todo_itemState({required this.dataSource});
+  _sub_itemState({required this.dataSource});
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: 5),
       child: ListTile(
         onTap: () async {
-          await navigateToDetails(dataSource);
-          await context.read<TodoCubit>().refresh(null);
+          widget.onToDoChanged(widget.sub.id);
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         tileColor: Colors.white,
         leading: IconButton(
-          icon: Icon(widget.todo.done
+          icon: Icon(widget.sub.done
               ? Icons.check_box
               : Icons.check_box_outline_blank),
           color: tdBlue,
           onPressed: () {
-            widget.onToDoChanged(widget.todo);
+            widget.onToDoChanged(widget.sub.id);
           },
         ),
         title: Text(
-          widget.todo.text!,
+          widget.sub.text ?? " ",
           style: TextStyle(
             fontSize: 16,
             color: tdBlack,
-            decoration: widget.todo.done ? TextDecoration.lineThrough : null,
+            decoration: widget.sub.done ? TextDecoration.lineThrough : null,
           ),
         ),
         trailing: Container(
@@ -68,16 +67,11 @@ class _todo_itemState extends State<todo_item> {
             iconSize: 18,
             icon: Icon(Icons.delete),
             onPressed: () {
-              widget.onDeleteItem(widget.todo.id);
+              widget.onDeleteItem(widget.sub);
             },
           ),
         ),
       ),
     );
-  }
-
-  Future<void> navigateToDetails(IsarTodoDataSource dataSource) async {
-    final route = TodoDeatilsRoute(widget.todo, dataSource);
-    Navigator.push(context, route);
   }
 }

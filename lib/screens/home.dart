@@ -9,25 +9,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inf/screens/todo_details.dart';
 
 class Home extends StatelessWidget {
-  final _todoController = TextEditingController();
   final IsarTodoDataSource dataSource;
   Home({required this.dataSource});
   @override
   Widget build(BuildContext context) {
     return HomeContent(
-      todoController: _todoController,
       dataSource: dataSource,
     );
   }
 }
 
 class HomeContent extends StatelessWidget {
-  final TextEditingController todoController;
   final IsarTodoDataSource dataSource;
 
-  const HomeContent(
-      {Key? key, required this.todoController, required this.dataSource})
-      : super(key: key);
+  const HomeContent({Key? key, required this.dataSource}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +62,16 @@ class HomeContent extends StatelessWidget {
                           todo_item(
                             todo: td,
                             dataSource: dataSource,
-                            onToDoChanged: (todo) {
-                              context.read<TodoCubit>().handleToDoChange(todo);
+                            onToDoChanged: (todo) async {
+                              await context
+                                  .read<TodoCubit>()
+                                  .handleToDoChange(todo);
+                              await context.read<TodoCubit>().refresh(null);
                             },
-                            onDeleteItem: (id) {
-                              context.read<TodoCubit>().handleDeleteToDo(id);
+                            onDeleteItem: (id) async {
+                              await context
+                                  .read<TodoCubit>()
+                                  .handleDeleteToDo(id);
                             },
                           ),
                         SizedBox(
@@ -96,10 +96,10 @@ class HomeContent extends StatelessWidget {
                   style: TextStyle(fontSize: 40),
                 ),
                 onPressed: () async {
-                  ToDo td = await context.read<TodoCubit>().addToDoItem("abc");
-                  final route = TodoDeatilsRoute(td, dataSource);
+                  int id = await context.read<TodoCubit>().addToDoItem("abc");
+                  final td = await dataSource.get(id);
+                  final route = TodoDeatilsRoute(td!, dataSource);
                   Navigator.push(context, route);
-                  todoController.clear();
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: tdBlue,
