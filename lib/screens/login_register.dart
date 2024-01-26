@@ -88,9 +88,11 @@ class _LoginPageState extends State<LoginPage> {
             child: _title(),
           ),
           IconButton(
-            icon: context.watch<ThemeProvider>().isDarkMode
-                ? Icon(Icons.dark_mode, color: Colors.white, size: 30)
-                : Icon(Icons.light_mode, color: Colors.black12, size: 30),
+            icon: context.watch<ThemeProvider>().isDarkMode == 1
+                ? Icon(Icons.dark_mode, size: 30)
+                : context.watch<ThemeProvider>().isDarkMode == 0
+                    ? Icon(Icons.light_mode, size: 30)
+                    : Icon(Icons.person, size: 30),
             onPressed: () {
               context.read<ThemeProvider>().toggleTheme();
             },

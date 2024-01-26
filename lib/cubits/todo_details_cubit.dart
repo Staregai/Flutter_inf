@@ -36,10 +36,12 @@ class TodoDetailsCubit extends Cubit<DetailsState> {
   }
 
   Future<void> addToDoSubItem(String text) async {
-    await dataSource.AddSub(state.toDo.id, text);
+    await addd(state.toDo.id, text);
     await refresh(null);
   }
 
+  Future<void> addd(int id, String txt) async =>
+      await dataSource.AddSub(id, txt);
   Future<void> handleDeleteSub(int id, Subtask del) async {
     await dataSource.DelSub(id, del);
     await refresh(null);

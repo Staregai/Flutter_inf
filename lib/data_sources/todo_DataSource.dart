@@ -1,4 +1,6 @@
+import "package:flutter/material.dart";
 import "package:inf/classes/todo.dart";
+import 'package:inf/classes/colors.dart';
 import "package:isar/isar.dart";
 import "package:path_provider/path_provider.dart";
 
@@ -11,9 +13,14 @@ class IsarTodoDataSource {
       _initialized = true;
       final dir = await getApplicationDocumentsDirectory();
       _isar = await Isar.open(
-        [ToDoSchema, SubtaskSchema],
+        [ToDoSchema, SubtaskSchema, PersonalizeSchema],
         directory: dir.path,
       );
+    }
+    int c = await _isar.personalizes.count();
+    if (c == 0) {
+      await _isar
+          .writeTxn(() async => await _isar.personalizes.put(Personalize()));
     }
   }
 
@@ -27,6 +34,8 @@ class IsarTodoDataSource {
       await _isar.toDos.filter().idEqualTo(id).findFirst();
   Future<Subtask?> getsub(int id) async =>
       await _isar.subtasks.filter().idEqualTo(id).findFirst();
+  Future<Personalize?> getp(int id) async =>
+      await _isar.personalizes.filter().idEqualTo(id).findFirst();
 
   Future<List<ToDo>> getAll() async => await _isar.toDos.where().findAll();
   Future<List<Subtask>> getAllsub() async =>
@@ -91,5 +100,66 @@ class IsarTodoDataSource {
       await td?.subtasks.save();
       await _isar.toDos.put(td!);
     });
+  }
+
+  Future<void> tdDelete(int a, int r, int g, int b) async =>
+      await _isar.writeTxn(() async {
+        Personalize? personalize = await getp(0);
+        personalize?.tdDelete = [a, r, g, b];
+        _isar.personalizes.put(personalize!);
+      });
+
+  Future<void> tdText(int a, int r, int g, int b) async =>
+      await _isar.writeTxn(() async {
+        Personalize? personalize = await getp(0);
+        personalize?.tdText = [a, r, g, b];
+        _isar.personalizes.put(personalize!);
+      });
+
+  Future<void> tdBgColor(int a, int r, int g, int b) async =>
+      await _isar.writeTxn(() async {
+        Personalize? personalize = await getp(0);
+        personalize?.tdBGColor = [a, r, g, b];
+        _isar.personalizes.put(personalize!);
+      });
+
+  Future<void> tdTile(int a, int r, int g, int b) async =>
+      await _isar.writeTxn(() async {
+        Personalize? personalize = await getp(0);
+        personalize?.tdTile = [a, r, g, b];
+        _isar.personalizes.put(personalize!);
+      });
+
+  Future<void> tdCheckbox(int a, int r, int g, int b) async =>
+      await _isar.writeTxn(() async {
+        Personalize? personalize = await getp(0);
+        personalize?.tdCheckbox = [a, r, g, b];
+        _isar.personalizes.put(personalize!);
+      });
+
+  Future<void> tdIcon(int a, int r, int g, int b) async =>
+      await _isar.writeTxn(() async {
+        Personalize? personalize = await getp(0);
+        personalize?.tdIcon = [a, r, g, b];
+        _isar.personalizes.put(personalize!);
+      });
+
+  Future<void> tdTextWithoutBackground(int a, int r, int g, int b) async =>
+      await _isar.writeTxn(() async {
+        Personalize? personalize = await getp(0);
+        personalize?.tdTextWithoutBackground = [a, r, g, b];
+        _isar.personalizes.put(personalize!);
+      });
+
+  Future<void> tdCustomBrightness() async {
+    await _isar.writeTxn(() async {
+      Personalize? personalize = await getp(0);
+      personalize?.customBrightness =
+          personalize.customBrightness == Brightness.light
+              ? Brightness.dark
+              : Brightness.light;
+      _isar.personalizes.put(personalize!);
+    });
+    print("pierwsze");
   }
 }

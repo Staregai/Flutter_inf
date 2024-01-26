@@ -1,4 +1,3 @@
-import 'package:inf/cubits/todo_cubit.dart';
 import 'package:isar/isar.dart';
 
 part 'todo.g.dart';

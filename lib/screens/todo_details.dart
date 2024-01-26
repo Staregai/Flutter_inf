@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:inf/classes/subtask_item.dart';
 import 'package:inf/classes/todo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:inf/classes/todo_item.dart';
 import 'package:inf/cubits/todo_cubit.dart';
 import 'package:inf/cubits/todo_details_cubit.dart';
 import 'package:inf/data_sources/todo_DataSource.dart';
-import 'package:inf/helpers/colors.dart';
 import 'package:inf/main.dart';
 
 class TodoDeatilsRoute extends MaterialPageRoute {
@@ -74,6 +72,7 @@ class _TodoDetailsContent extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 5),
           children: [
             TextField(
+              style: TextStyle(color: Theme.of(context).colorScheme.onError),
               decoration: InputDecoration(
                 labelText: "Title",
               ),
@@ -89,12 +88,12 @@ class _TodoDetailsContent extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20)),
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                tileColor: Colors.white,
+                tileColor: Colors.transparent,
                 leading: IconButton(
                   icon: Icon(context.watch<TodoDetailsCubit>().isDone()
                       ? Icons.check_box
                       : Icons.check_box_outline_blank),
-                  color: tdBlue,
+                  color: Theme.of(context).colorScheme.surface,
                   onPressed: () async {
                     await context.read<TodoDetailsCubit>().DoneChange();
                   },
@@ -103,7 +102,7 @@ class _TodoDetailsContent extends StatelessWidget {
                   "Done",
                   style: TextStyle(
                     fontSize: 16,
-                    color: tdBlack,
+                    color: Theme.of(context).colorScheme.onError,
                   ),
                 ),
               ),
@@ -111,6 +110,7 @@ class _TodoDetailsContent extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(bottom: 10),
               child: TextField(
+                style: TextStyle(color: Theme.of(context).colorScheme.onError),
                 decoration: InputDecoration(labelText: "Description"),
                 maxLines: 8,
                 controller: descriptionController,
@@ -147,7 +147,7 @@ class _TodoDetailsContent extends StatelessWidget {
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.secondary,
                       boxShadow: [
                         BoxShadow(
                             color: Colors.grey,
@@ -157,8 +157,11 @@ class _TodoDetailsContent extends StatelessWidget {
                       ],
                     ),
                     child: TextField(
-                      style: TextStyle(color: tdBlack),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary),
                       decoration: InputDecoration(
+                        hintStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary),
                         hintText: "Add new subtask",
                         border: InputBorder.none,
                       ),
@@ -177,10 +180,11 @@ class _TodoDetailsContent extends StatelessWidget {
                       await context
                           .read<TodoDetailsCubit>()
                           .addToDoSubItem(newsubController.text);
+                      await context.read<TodoDetailsCubit>().refresh(null);
                       newsubController.text = "";
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: tdBlue,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
                         minimumSize: Size(60, 60),
                         elevation: 10),
                   ),
@@ -195,6 +199,13 @@ class _TodoDetailsContent extends StatelessWidget {
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        onPressed: () async {
+          await context.read<TodoCubit>().refresh(null);
+          Navigator.of(context).pop();
+        },
+      ),
       elevation: 0,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -204,9 +215,11 @@ class _TodoDetailsContent extends StatelessWidget {
             child: Text("Details"),
           ),
           IconButton(
-            icon: context.watch<ThemeProvider>().isDarkMode
-                ? Icon(Icons.dark_mode, color: Colors.white, size: 30)
-                : Icon(Icons.light_mode, color: Colors.black12, size: 30),
+            icon: context.watch<ThemeProvider>().isDarkMode == 1
+                ? Icon(Icons.dark_mode, size: 30)
+                : context.watch<ThemeProvider>().isDarkMode == 0
+                    ? Icon(Icons.light_mode, size: 30)
+                    : Icon(Icons.person, size: 30),
             onPressed: () {
               context.read<ThemeProvider>().toggleTheme();
             },

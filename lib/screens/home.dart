@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:inf/classes/colors.dart';
 import 'package:inf/classes/todo_item.dart';
 import 'package:inf/classes/todo.dart';
 import 'package:inf/data_sources/todo_DataSource.dart';
-import 'package:inf/helpers/colors.dart';
 import 'package:inf/main.dart';
 import 'package:inf/cubits/todo_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:inf/screens/options.dart';
 import 'package:inf/screens/todo_details.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:inf/helpers/auth.dart';
@@ -123,7 +124,7 @@ class HomeContent extends StatelessWidget {
                   Navigator.push(context, route);
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: tdBlue,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     minimumSize: Size(60, 60),
                     elevation: 10),
               ),
@@ -142,19 +143,22 @@ class HomeContent extends StatelessWidget {
         children: [
           IconButton(
             icon: Icon(Icons.logout, size: 30),
-            onPressed: () async {
-              await showDialog(
-                  context: context, builder: (_) => const LogoutDialog());
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Options(dataSource: dataSource)));
+              // async {
+              //   await showDialog(
+              //       context: context, builder: (_) => const LogoutDialog());
             },
           ),
           IconButton(
-            icon: Icon(
-              context.watch<ThemeProvider>().isDarkMode
-                  ? Icons.dark_mode
-                  : Icons.light_mode,
-              color: Colors.white,
-              size: 30,
-            ),
+            icon: context.watch<ThemeProvider>().isDarkMode == 1
+                ? Icon(Icons.dark_mode, size: 30)
+                : context.watch<ThemeProvider>().isDarkMode == 0
+                    ? Icon(Icons.light_mode, size: 30)
+                    : Icon(Icons.person, size: 30),
             onPressed: () {
               context.read<ThemeProvider>().toggleTheme();
             },
@@ -169,11 +173,11 @@ class HomeContent extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.secondary,
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
-        style: TextStyle(color: tdBlack),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
         onChanged: (value) {
           context.read<TodoCubit>().runFilter(value);
         },
@@ -181,13 +185,14 @@ class HomeContent extends StatelessWidget {
           contentPadding: EdgeInsets.all(0),
           prefixIcon: Icon(
             Icons.search,
-            color: tdBlack,
             size: 30,
+            color: Theme.of(context).colorScheme.onSecondary,
           ),
           prefixIconConstraints: BoxConstraints(maxHeight: 20, maxWidth: 25),
           border: InputBorder.none,
           hintText: "Search",
-          hintStyle: TextStyle(color: tdGrey),
+          hintStyle:
+              TextStyle(color: Theme.of(context).colorScheme.onSecondary),
         ),
       ),
     );
@@ -198,6 +203,10 @@ class HomeContent extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          titleTextStyle:
+              TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+          contentTextStyle:
+              TextStyle(color: Theme.of(context).colorScheme.onSecondary),
           title: Text('Sort Options'),
           content: Column(
             children: [
@@ -228,7 +237,7 @@ class HomeContent extends StatelessWidget {
         child: Text(
           option,
           style: TextStyle(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).colorScheme.onSecondary,
             fontSize: 18,
           ),
         ),
@@ -250,6 +259,8 @@ class _LogoutDialogState extends State<LogoutDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      contentTextStyle:
+          TextStyle(color: Theme.of(context).colorScheme.onSecondary),
       content: Text("Are you sure you want to Log out?"),
       actions: [
         TextButton(
@@ -257,11 +268,17 @@ class _LogoutDialogState extends State<LogoutDialog> {
             Navigator.pop(context);
             await Auth().signOut();
           },
-          child: const Text('Yes'),
+          child: Text(
+            'Yes',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+          ),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('No'),
+          child: Text(
+            'No',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+          ),
         ),
       ],
     );
